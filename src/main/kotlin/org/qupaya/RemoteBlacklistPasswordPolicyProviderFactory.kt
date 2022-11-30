@@ -61,8 +61,13 @@ class RemoteBlacklistPasswordPolicyProviderFactory : PasswordPolicyProviderFacto
             cleanedBlacklistAddress
         ) { address: String ->
             val pbl = UrlBasedPasswordBlacklist(address)
-            pbl.init()
-            pbl
+            try {
+                pbl.init()
+                pbl
+            } catch (ex: Exception) {
+                LOG.error("Unable to create password blacklist", ex)
+                null
+            }
         }
     }
 
@@ -80,17 +85,13 @@ class RemoteBlacklistPasswordPolicyProviderFactory : PasswordPolicyProviderFacto
                 return
             }
 
-            try {
-                LOG.info("loading blacklist from ${this.address}")
+            LOG.info("loading blacklist from ${this.address}")
 
-                this.blacklist = this.loadPasswordBlacklist()
-                    .split('\n')
-                    .let { loadBloomFilter(it) }
+            this.blacklist = this.loadPasswordBlacklist()
+                .split('\n')
+                .let { loadBloomFilter(it) }
 
-                LOG.info("successfully loaded blacklist from ${this.address}")
-            } catch (ex: Exception) {
-                LOG.error(ex.message)
-            }
+            LOG.info("successfully loaded blacklist from ${this.address}")
         }
 
         private fun loadPasswordBlacklist(): String {

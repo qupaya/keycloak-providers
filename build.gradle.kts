@@ -16,12 +16,12 @@ dependencies {
     implementation("org.keycloak:keycloak-server-spi-private:20.0.1")
     implementation("org.keycloak:keycloak-core:20.0.1")
     implementation("com.google.guava:guava:31.1-jre")
-    implementation("io.github.microutils:kotlin-logging-jvm:2.0.11")
     implementation("org.jboss.logging:jboss-logging:3.5.0.Final")
 
     testImplementation(kotlin("test"))
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
     testImplementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
 }
 
 tasks.test {

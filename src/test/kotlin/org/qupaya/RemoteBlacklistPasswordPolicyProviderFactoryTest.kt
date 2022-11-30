@@ -1,0 +1,42 @@
+package org.qupaya
+
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import org.junit.jupiter.api.Test
+
+import org.junit.jupiter.api.Assertions.*
+
+internal class RemoteBlacklistPasswordPolicyProviderFactoryTest {
+
+    @Test
+    fun `successfully resolve a password blacklist`() {
+        val webServer = MockWebServer()
+        webServer.enqueue(MockResponse()
+            .setBody("""
+                password
+                123456
+            """.trimIndent())
+            .setResponseCode(200)
+        )
+
+        val blacklist = RemoteBlacklistPasswordPolicyProviderFactory()
+            .resolvePasswordBlacklist(webServer.url("/myBlacklist.txt").toString())
+
+        assertNotNull(blacklist) { "There should be a blacklist" }
+        assertTrue(blacklist?.contains("password") ?: false) { "The blacklist should contain the given words" }
+        assertFalse(blacklist?.contains("awesome-password") ?: true) { "The blacklist should not contain words that are not given" }
+    }
+
+    @Test
+    fun `return null when the blacklist is not available`() {
+        val webServer = MockWebServer()
+        webServer.enqueue(MockResponse()
+            .setResponseCode(404)
+        )
+
+        val blacklist = RemoteBlacklistPasswordPolicyProviderFactory()
+            .resolvePasswordBlacklist(webServer.url("/myBlacklist.txt").toString())
+
+        assertNull(blacklist)
+    }
+}
