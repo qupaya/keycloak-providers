@@ -1,4 +1,4 @@
-package org.qupaya
+package com.qupaya
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Nested
@@ -11,7 +11,7 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 
-internal class RemoteBlacklistPasswordPolicyProviderTest {
+internal class RemotePasswordBlacklistPolicyProviderTest {
 
     @Nested
     inner class ParseConfig {
@@ -23,12 +23,12 @@ internal class RemoteBlacklistPasswordPolicyProviderTest {
 
         @Test
         fun `return null in parseConfig when address is null`() {
-            assertNull(RemoteBlacklistPasswordPolicyProvider(resolver, context).parseConfig(null))
+            assertNull(RemotePasswordBlacklistPolicyProvider(resolver, context).parseConfig(null))
         }
 
         @Test
         fun `return a configuration in parseConfig when address is good`() {
-            assertSame(blacklist, RemoteBlacklistPasswordPolicyProvider(resolver, context).parseConfig("https://example.com/blacklist.txt"))
+            assertSame(blacklist, RemotePasswordBlacklistPolicyProvider(resolver, context).parseConfig("https://example.com/blacklist.txt"))
         }
     }
 
@@ -42,7 +42,7 @@ internal class RemoteBlacklistPasswordPolicyProviderTest {
         fun `validate without blacklist returns no error`() {
             val context = createContext(null)
 
-            assertNull(RemoteBlacklistPasswordPolicyProvider(resolver, context).validate("", ""))
+            assertNull(RemotePasswordBlacklistPolicyProvider(resolver, context).validate("", ""))
         }
 
         @Test
@@ -52,7 +52,7 @@ internal class RemoteBlacklistPasswordPolicyProviderTest {
             }
             val context = createContext(blacklist)
 
-            assertNull(RemoteBlacklistPasswordPolicyProvider(resolver, context).validate("", "password"))
+            assertNull(RemotePasswordBlacklistPolicyProvider(resolver, context).validate("", "password"))
         }
 
         @Test
@@ -62,14 +62,14 @@ internal class RemoteBlacklistPasswordPolicyProviderTest {
             }
             val context = createContext(blacklist)
 
-            val error = RemoteBlacklistPasswordPolicyProvider(resolver, context).validate("", "password")
-            assertEquals(RemoteBlacklistPasswordPolicyProvider.ERROR_MESSAGE, error?.message)
+            val error = RemotePasswordBlacklistPolicyProvider(resolver, context).validate("", "password")
+            assertEquals(RemotePasswordBlacklistPolicyProvider.ERROR_MESSAGE, error?.message)
         }
     }
 
     fun createContext(blacklist: BlacklistResolver.PasswordBlacklist?): KeycloakContext {
         val pwPolicy = mock<PasswordPolicy> {
-            on { getPolicyConfig<BlacklistResolver.PasswordBlacklist>(eq(RemoteBlacklistPasswordPolicyProviderFactory.ID)) } doReturn blacklist
+            on { getPolicyConfig<BlacklistResolver.PasswordBlacklist>(eq(RemotePasswordBlacklistPolicyProviderFactory.ID)) } doReturn blacklist
         }
         val realmModel = mock<RealmModel> {
             on { passwordPolicy } doReturn pwPolicy

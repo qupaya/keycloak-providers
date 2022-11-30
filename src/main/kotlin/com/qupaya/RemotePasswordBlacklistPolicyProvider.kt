@@ -1,4 +1,4 @@
-package org.qupaya
+package com.qupaya
 
 import org.keycloak.models.KeycloakContext
 import org.keycloak.models.RealmModel
@@ -6,7 +6,7 @@ import org.keycloak.models.UserModel
 import org.keycloak.policy.PasswordPolicyProvider
 import org.keycloak.policy.PolicyError
 
-class RemoteBlacklistPasswordPolicyProvider(private val resolver: BlacklistResolver, private val context: KeycloakContext?) : PasswordPolicyProvider {
+class RemotePasswordBlacklistPolicyProvider(private val resolver: BlacklistResolver, private val context: KeycloakContext?) : PasswordPolicyProvider {
 
     override fun validate(realm: RealmModel?, user: UserModel?, password: String?): PolicyError? {
         return validate(user?.username, password)
@@ -17,7 +17,9 @@ class RemoteBlacklistPasswordPolicyProvider(private val resolver: BlacklistResol
             return null
         }
 
-        val blacklist = this.context?.realm?.passwordPolicy?.getPolicyConfig<BlacklistResolver.PasswordBlacklist>(RemoteBlacklistPasswordPolicyProviderFactory.ID)
+        val blacklist = this.context?.realm?.passwordPolicy?.getPolicyConfig<BlacklistResolver.PasswordBlacklist>(
+            RemotePasswordBlacklistPolicyProviderFactory.ID
+        )
 
         return if (blacklist?.contains(password) == true) {
             PolicyError(ERROR_MESSAGE)

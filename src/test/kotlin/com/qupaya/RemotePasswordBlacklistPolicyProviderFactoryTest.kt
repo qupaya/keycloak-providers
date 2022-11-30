@@ -1,4 +1,4 @@
-package org.qupaya
+package com.qupaya
 
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.Assertions.*
 
-internal class RemoteBlacklistPasswordPolicyProviderFactoryTest {
+internal class RemotePasswordBlacklistPolicyProviderFactoryTest {
 
     @Test
     fun `successfully resolve a password blacklist`() {
@@ -19,7 +19,7 @@ internal class RemoteBlacklistPasswordPolicyProviderFactoryTest {
             .setResponseCode(200)
         )
 
-        val blacklist = RemoteBlacklistPasswordPolicyProviderFactory()
+        val blacklist = RemotePasswordBlacklistPolicyProviderFactory()
             .resolvePasswordBlacklist(webServer.url("/myBlacklist.txt").toString())
 
         assertNotNull(blacklist) { "There should be a blacklist" }
@@ -34,7 +34,7 @@ internal class RemoteBlacklistPasswordPolicyProviderFactoryTest {
             .setResponseCode(404)
         )
 
-        val blacklist = RemoteBlacklistPasswordPolicyProviderFactory()
+        val blacklist = RemotePasswordBlacklistPolicyProviderFactory()
             .resolvePasswordBlacklist(webServer.url("/myBlacklist.txt").toString())
 
         assertNull(blacklist)

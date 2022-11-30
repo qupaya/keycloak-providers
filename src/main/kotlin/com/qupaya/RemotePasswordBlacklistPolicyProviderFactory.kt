@@ -1,4 +1,4 @@
-package org.qupaya
+package com.qupaya
 
 import com.google.common.hash.BloomFilter
 import com.google.common.hash.Funnels
@@ -19,11 +19,11 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
-class RemoteBlacklistPasswordPolicyProviderFactory : PasswordPolicyProviderFactory, BlacklistResolver {
+class RemotePasswordBlacklistPolicyProviderFactory : PasswordPolicyProviderFactory, BlacklistResolver {
     private val blacklistRegistry: ConcurrentMap<String, UrlBasedPasswordBlacklist> = ConcurrentHashMap()
 
     override fun create(session: KeycloakSession?): PasswordPolicyProvider {
-        return RemoteBlacklistPasswordPolicyProvider(this, session?.context)
+        return RemotePasswordBlacklistPolicyProvider(this, session?.context)
     }
 
     override fun init(config: Config.Scope?) {
@@ -136,6 +136,6 @@ class RemoteBlacklistPasswordPolicyProviderFactory : PasswordPolicyProviderFacto
     companion object {
         const val ID = "remotePasswordBlacklist"
         const val FALSE_POSITIVE_PROBABILITY = 0.01
-        val LOG = Logger.getLogger(RemoteBlacklistPasswordPolicyProviderFactory::class.java)
+        val LOG = Logger.getLogger(RemotePasswordBlacklistPolicyProviderFactory::class.java)
     }
 }
