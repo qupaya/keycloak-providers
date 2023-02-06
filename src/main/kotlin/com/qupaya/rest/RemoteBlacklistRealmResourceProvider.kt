@@ -5,7 +5,7 @@ import org.keycloak.services.resource.RealmResourceProvider
 
 class RemoteBlacklistRealmResourceProvider(private val session: KeycloakSession?) : RealmResourceProvider {
 
-    override fun getResource(): BlacklistReloadResource {
+    override fun getResource(): Any {
         return BlacklistReloadResource(this.session)
     }
 
