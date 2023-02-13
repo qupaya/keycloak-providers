@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.7.21"
+    kotlin("jvm") version "1.8.10"
 }
 
 group = "com.qupaya"
@@ -16,7 +16,6 @@ dependencies {
     implementation("org.keycloak:keycloak-services:20.0.3")
     implementation("org.keycloak:keycloak-server-spi:20.0.3")
     implementation("org.keycloak:keycloak-server-spi-private:20.0.3")
-    implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
     implementation("com.google.guava:guava:31.1-jre")
 
     testImplementation(kotlin("test"))

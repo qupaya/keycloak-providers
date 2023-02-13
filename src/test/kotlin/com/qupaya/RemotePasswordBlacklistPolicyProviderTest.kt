@@ -17,7 +17,7 @@ internal class RemotePasswordBlacklistPolicyProviderTest {
     inner class ParseConfig {
         private val blacklist = mock<BlacklistResolver.PasswordBlacklist> {}
         private val resolver = object : BlacklistResolver {
-            override fun resolvePasswordBlacklist(blacklistAddress: String) = blacklist
+            override fun resolvePasswordBlacklist(blacklistAddresses: String) = blacklist
         }
         private val context = createContext(null)
 

@@ -5,5 +5,5 @@ interface BlacklistResolver {
         fun contains(password: String): Boolean
     }
 
-    fun resolvePasswordBlacklist(blacklistAddress: String): PasswordBlacklist?
+    fun resolvePasswordBlacklist(blacklistAddresses: String): PasswordBlacklist?
 }

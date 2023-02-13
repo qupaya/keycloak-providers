@@ -28,8 +28,8 @@ class RemotePasswordBlacklistPolicyProvider(private val resolver: BlacklistResol
         }
     }
 
-    override fun parseConfig(address: String?): Any? {
-        return address?.let { this.resolver.resolvePasswordBlacklist(it) }
+    override fun parseConfig(addresses: String?): Any? {
+        return addresses?.let { this.resolver.resolvePasswordBlacklist(it) }
     }
 
     override fun close() {

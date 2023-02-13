@@ -48,19 +48,20 @@ class RemotePasswordBlacklistPolicyProviderFactory : PasswordPolicyProviderFacto
     /**
      * Resolves and potentially registers a [BlacklistPasswordPolicyProviderFactory.PasswordBlacklist] for the given `blacklistName`.
      *
-     * @param blacklistAddress HTTP address of the password blacklist
+     * @param blacklistAddresses HTTP address of the password blacklist
      * @return
      */
-    override fun resolvePasswordBlacklist(blacklistAddress: String): BlacklistResolver.PasswordBlacklist? {
-        Objects.requireNonNull(blacklistAddress, "blacklistName")
-        val cleanedBlacklistAddress = blacklistAddress.trim()
+    override fun resolvePasswordBlacklist(blacklistAddresses: String): BlacklistResolver.PasswordBlacklist? {
+        Objects.requireNonNull(blacklistAddresses, "blacklistName")
+        val cleanedBlacklistAddresses = blacklistAddresses.trim()
 
-        require(cleanedBlacklistAddress.isNotEmpty()) { "Password blacklist name must not be empty!" }
+        require(cleanedBlacklistAddresses.isNotEmpty()) { "Password blacklist name must not be empty!" }
 
+        blacklistRegistry.clear()
         return blacklistRegistry.computeIfAbsent(
-            cleanedBlacklistAddress
-        ) { address: String ->
-            val pbl = UrlBasedPasswordBlacklist(address)
+            cleanedBlacklistAddresses
+        ) { addresses: String ->
+            val pbl = UrlBasedPasswordBlacklist(addresses)
             try {
                 pbl.init()
                 pbl
@@ -71,12 +72,12 @@ class RemotePasswordBlacklistPolicyProviderFactory : PasswordPolicyProviderFacto
         }
     }
 
-    inner class UrlBasedPasswordBlacklist(private val address: String) : BlacklistResolver.PasswordBlacklist {
+    inner class UrlBasedPasswordBlacklist(private val addresses: String) : BlacklistResolver.PasswordBlacklist {
         private var blacklist: BloomFilter<String>? = null
 
         init {
-            if (!this.address.matches(Regex("^https?://.+"))) {
-                throw IllegalArgumentException("The address $address is not an HTTP address!")
+            if (!this.addresses.split(' ').any { it.matches(Regex("^https?://.+")) }) {
+                throw IllegalArgumentException("One of the addresses $addresses is not an HTTP address!")
             }
         }
 
@@ -85,18 +86,23 @@ class RemotePasswordBlacklistPolicyProviderFactory : PasswordPolicyProviderFacto
                 return
             }
 
-            LOG.info("loading blacklist from ${this.address}")
+            LOG.info("loading blacklists from ${this.addresses}")
 
-            this.blacklist = this.loadPasswordBlacklist()
-                .split('\n')
+            this.blacklist = this.addresses.split(' ')
+                .map { address ->
+                    this.loadPasswordBlacklist(address)
+                        .split('\n')
+                }
+                .flatten()
+                .toSet()
                 .let { loadBloomFilter(it) }
 
-            LOG.info("successfully loaded blacklist from ${this.address}")
+            LOG.info("successfully loaded blacklists from ${this.addresses}")
         }
 
-        private fun loadPasswordBlacklist(): String {
+        private fun loadPasswordBlacklist(address: String): String {
             try {
-                val request = HttpRequest.newBuilder(URI(this.address))
+                val request = HttpRequest.newBuilder(URI(address))
                     .timeout(Duration.ofSeconds(10))
                     .GET()
                     .build()
@@ -112,11 +118,11 @@ class RemotePasswordBlacklistPolicyProviderFactory : PasswordPolicyProviderFacto
 
                 return response.body()
             } catch (ex: Exception) {
-                throw RuntimeException("Could not load password blacklist from address $address", ex)
+                throw RuntimeException("Could not load password blacklist from addresses $addresses", ex)
             }
         }
 
-        private fun loadBloomFilter(blacklist: List<String>): BloomFilter<String> {
+        private fun loadBloomFilter(blacklist: Set<String>): BloomFilter<String> {
             val filter: BloomFilter<String> = BloomFilter.create(
                 Funnels.stringFunnel(StandardCharsets.UTF_8),
                 blacklist.size,
