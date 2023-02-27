@@ -3,9 +3,6 @@ package com.qupaya
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.keycloak.models.KeycloakContext
-import org.keycloak.models.PasswordPolicy
-import org.keycloak.models.RealmModel
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.eq
@@ -64,18 +61,6 @@ internal class RemotePasswordBlacklistPolicyProviderTest {
 
             val error = RemotePasswordBlacklistPolicyProvider(resolver, context).validate("", "password")
             assertEquals(RemotePasswordBlacklistPolicyProvider.ERROR_MESSAGE, error?.message)
-        }
-    }
-
-    fun createContext(blacklist: BlacklistResolver.PasswordBlacklist?): KeycloakContext {
-        val pwPolicy = mock<PasswordPolicy> {
-            on { getPolicyConfig<BlacklistResolver.PasswordBlacklist>(eq(RemotePasswordBlacklistPolicyProviderFactory.ID)) } doReturn blacklist
-        }
-        val realmModel = mock<RealmModel> {
-            on { passwordPolicy } doReturn pwPolicy
-        }
-        return mock {
-            on { realm } doReturn realmModel
         }
     }
 }
