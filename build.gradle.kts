@@ -17,6 +17,7 @@ dependencies {
     implementation("org.keycloak:keycloak-server-spi:20.0.3")
     implementation("org.keycloak:keycloak-server-spi-private:20.0.3")
     implementation("com.google.guava:guava:31.1-jre")
+    implementation("org.mindrot:jbcrypt:0.4")
 
     testImplementation(kotlin("test"))
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
