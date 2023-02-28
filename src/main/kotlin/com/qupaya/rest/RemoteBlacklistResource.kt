@@ -2,6 +2,7 @@ package com.qupaya.rest
 
 import com.qupaya.BlacklistResolver
 import com.qupaya.RemotePasswordBlacklistPolicyProviderFactory
+import org.jboss.resteasy.annotations.cache.NoCache
 import org.keycloak.models.KeycloakSession
 import javax.ws.rs.GET
 import javax.ws.rs.Path
@@ -14,6 +15,7 @@ class RemoteBlacklistResource(private val session: KeycloakSession) {
 
     @GET
     @Path("check/{password}")
+    @NoCache
     @Produces(MediaType.TEXT_PLAIN)
     fun checkPassword(@PathParam("password") password: String): Response {
         val blacklist = this.session.context?.realm?.passwordPolicy?.getPolicyConfig<BlacklistResolver.PasswordBlacklist>(
