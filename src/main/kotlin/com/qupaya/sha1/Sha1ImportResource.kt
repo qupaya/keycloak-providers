@@ -35,7 +35,9 @@ class Sha1ImportResource(private val session: KeycloakSession) {
             )
         )
 
-        return Response.status(Response.Status.CREATED).build()
+        return Response.status(Response.Status.CREATED)
+            .entity("{\"id\": \"${user.id}\"}")
+            .build()
     }
 
     private fun checkRealmAdmin() {
@@ -43,7 +45,7 @@ class Sha1ImportResource(private val session: KeycloakSession) {
             throw NotAuthorizedException("Bearer")
         } else if (auth.token.realmAccess == null || !auth.token.realmAccess.isUserInRole("sha1-import")) {
             println(auth.token.realmAccess?.roles)
-            throw ForbiddenException("Does not have realm admin role")
+            throw ForbiddenException("Does not have the required import role")
         }
     }
 }
