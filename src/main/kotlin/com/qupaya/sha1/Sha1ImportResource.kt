@@ -19,6 +19,12 @@ class Sha1ImportResource(private val session: KeycloakSession) {
     fun importUser(userData: Sha1User): Response {
         checkRealmAdmin()
 
+        val existingUser = session.users().getUserByEmail(session.context.realm, userData.email)
+        if (existingUser != null) {
+            return Response.ok("{\"id\": \"${existingUser.id}\"}")
+                .build()
+        }
+
         val user = session.users().addUser(session.context.realm, userData.username)
         user.firstName = userData.firstName
         user.lastName = userData.lastName
@@ -44,7 +50,6 @@ class Sha1ImportResource(private val session: KeycloakSession) {
         if (auth == null) {
             throw NotAuthorizedException("Bearer")
         } else if (auth.token.realmAccess == null || !auth.token.realmAccess.isUserInRole("sha1-import")) {
-            println(auth.token.realmAccess?.roles)
             throw ForbiddenException("Does not have the required import role")
         }
     }
