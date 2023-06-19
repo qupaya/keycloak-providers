@@ -66,4 +66,21 @@ internal class RemotePasswordBlacklistPolicyProviderFactoryTest {
 
         assertNull(blacklist)
     }
+
+    @Test
+    fun `the blacklist reading should work case insensitive`() {
+        val webServer = MockWebServer()
+        webServer.enqueue(MockResponse()
+            .setBody("""
+                PaSsWoRd
+            """.trimIndent())
+            .setResponseCode(200)
+        )
+
+        val blacklist = RemotePasswordBlacklistPolicyProviderFactory()
+            .resolvePasswordBlacklist(webServer.url("/myBlacklist.txt").toString())
+
+        assertNotNull(blacklist) { "There should be a blacklist" }
+        assertTrue(blacklist?.contains("pAsSwOrD") ?: false) { "The blacklist should contain the given case insensitive words" }
+    }
 }

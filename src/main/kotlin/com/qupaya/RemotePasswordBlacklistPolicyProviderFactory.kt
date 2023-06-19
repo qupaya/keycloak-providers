@@ -94,6 +94,7 @@ class RemotePasswordBlacklistPolicyProviderFactory : PasswordPolicyProviderFacto
                         .split('\n')
                 }
                 .flatten()
+                .map { it.lowercase() }
                 .toSet()
                 .let { loadBloomFilter(it) }
 
@@ -135,7 +136,7 @@ class RemotePasswordBlacklistPolicyProviderFactory : PasswordPolicyProviderFacto
         }
 
         override fun contains(password: String): Boolean {
-            return this.blacklist?.mightContain(password) ?: true
+            return this.blacklist?.mightContain(password.lowercase()) ?: true
         }
     }
 

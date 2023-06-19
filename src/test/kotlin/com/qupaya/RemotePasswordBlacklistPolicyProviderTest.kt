@@ -43,7 +43,7 @@ internal class RemotePasswordBlacklistPolicyProviderTest {
         }
 
         @Test
-        fun `validate with with that is not in blacklist returns no error`() {
+        fun `validate with word that is not in blacklist returns no error`() {
             val blacklist = mock<BlacklistResolver.PasswordBlacklist> {
                 on { contains(any()) } doReturn false
             }
@@ -53,7 +53,7 @@ internal class RemotePasswordBlacklistPolicyProviderTest {
         }
 
         @Test
-        fun `validate with with that is in blacklist returns error`() {
+        fun `validate with word that is in blacklist returns error`() {
             val blacklist = mock<BlacklistResolver.PasswordBlacklist> {
                 on { contains(eq("password")) } doReturn true
             }
