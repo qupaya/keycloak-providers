@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.qupaya"
-version = "v0.0.3"
+version = "v0.0.4"
 
 repositories {
     mavenCentral()
