@@ -1,2 +1,2 @@
-com.qupaya.rest.RemoteBlacklistRealmResourceProviderFactory
+com.qupaya.blacklist.rest.RemoteBlacklistRealmResourceProviderFactory
 com.qupaya.sha1.Sha1ImportRealmResourceProviderFactory

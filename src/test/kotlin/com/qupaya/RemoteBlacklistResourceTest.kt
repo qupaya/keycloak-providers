@@ -1,6 +1,7 @@
 package com.qupaya
 
-import com.qupaya.rest.RemoteBlacklistResource
+import com.qupaya.blacklist.BlacklistResolver
+import com.qupaya.blacklist.rest.RemoteBlacklistResource
 import org.junit.jupiter.api.Test
 import org.keycloak.models.KeycloakSession
 import org.mockito.kotlin.doReturn

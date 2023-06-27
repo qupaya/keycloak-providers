@@ -1,5 +1,6 @@
 package com.qupaya
 
+import com.qupaya.blacklist.RemotePasswordBlacklistPolicyProviderFactory
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
