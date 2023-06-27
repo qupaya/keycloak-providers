@@ -1,7 +1,7 @@
-package com.qupaya.rest
+package com.qupaya.blacklist.rest
 
-import com.qupaya.BlacklistResolver
-import com.qupaya.RemotePasswordBlacklistPolicyProviderFactory
+import com.qupaya.blacklist.BlacklistResolver
+import com.qupaya.blacklist.RemotePasswordBlacklistPolicyProviderFactory
 import org.jboss.resteasy.annotations.cache.NoCache
 import org.keycloak.models.KeycloakSession
 import javax.ws.rs.GET

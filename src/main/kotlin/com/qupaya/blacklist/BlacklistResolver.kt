@@ -1,4 +1,4 @@
-package com.qupaya
+package com.qupaya.blacklist
 
 interface BlacklistResolver {
     interface PasswordBlacklist {

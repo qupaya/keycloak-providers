@@ -1,4 +1,4 @@
-package com.qupaya.rest
+package com.qupaya.blacklist.rest
 
 import org.keycloak.Config
 import org.keycloak.models.KeycloakSession

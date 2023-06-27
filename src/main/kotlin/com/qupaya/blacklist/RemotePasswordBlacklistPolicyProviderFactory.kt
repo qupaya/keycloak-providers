@@ -1,4 +1,4 @@
-package com.qupaya
+package com.qupaya.blacklist
 
 import com.google.common.hash.BloomFilter
 import com.google.common.hash.Funnels
