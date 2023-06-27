@@ -1,5 +1,10 @@
 package com.qupaya.sha1;
 
+/*
+ * Apparently whatever framework Keycloak uses doesn't like POJOs
+ * for automatic conversion from JSON data when they are written
+ * in Kotlin. So, here it is in Java.
+ */
 public class Sha1User {
     String firstName = "";
     String lastName = "";

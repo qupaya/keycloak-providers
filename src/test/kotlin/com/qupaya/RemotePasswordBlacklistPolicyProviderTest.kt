@@ -1,5 +1,7 @@
 package com.qupaya
 
+import com.qupaya.blacklist.BlacklistResolver
+import com.qupaya.blacklist.RemotePasswordBlacklistPolicyProvider
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test

@@ -1,4 +1,4 @@
-package com.qupaya
+package com.qupaya.blacklist
 
 import org.keycloak.models.KeycloakContext
 import org.keycloak.models.RealmModel
