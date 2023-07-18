@@ -1,6 +1,12 @@
 package com.qupaya.brevo
 
 import com.qupaya.util.urlEncode
+import org.apache.http.client.methods.HttpPost
+import org.apache.http.entity.StringEntity
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler
+import org.apache.http.impl.client.HttpClientBuilder
+import org.apache.http.impl.client.LaxRedirectStrategy
+import org.apache.http.util.EntityUtils
 import org.jboss.logging.Logger
 import org.keycloak.events.Event
 import org.keycloak.events.EventListenerProvider
@@ -8,11 +14,6 @@ import org.keycloak.events.EventType
 import org.keycloak.events.admin.AdminEvent
 import org.keycloak.models.KeycloakSession
 import java.io.IOException
-import java.net.URI
-import java.net.http.HttpClient
-import java.net.http.HttpRequest
-import java.net.http.HttpResponse
-import java.time.Duration
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.RejectedExecutionException
 
@@ -66,30 +67,26 @@ class NewsletterRegistrationEventListenerProvider(
          * using the form data POST request ensures that handling like
          * success pages can be controlled inside Brevo.
          */
-        val http = HttpClient.newHttpClient()
-        val request = HttpRequest.newBuilder()
-            .uri(URI.create(brevoFormLink))
-            .POST(HttpRequest.BodyPublishers.ofString(getFormDataAsString(formData)))
-            .header("content-type", "application/x-www-form-urlencoded")
-            .build()
+        val httpPost = HttpPost(brevoFormLink)
+        httpPost.entity = StringEntity(getFormDataAsString(formData))
+        httpPost.setHeader("content-type", "application/x-www-form-urlencoded")
 
-        for (waitTime in RETRY_WAIT_DURATIONS) {
-            Thread.sleep(waitTime.toMillis())
-
-            try {
-                val response = http.send(request, HttpResponse.BodyHandlers.ofString())
-
-                if (response.statusCode() < HTTP_ERROR_CODES_START) { // success
-                    break
+        try {
+            HttpClientBuilder.create()
+                .setRetryHandler(DefaultHttpRequestRetryHandler())
+                .setRedirectStrategy(LaxRedirectStrategy()).build()
+                .use { http ->
+                    val response = http.execute(httpPost)
+                    if (response.statusLine.statusCode > HTTP_ERROR_CODES_START) {
+                        LOG.error("Brevo newsletter subscription request response: ${response.statusLine.statusCode}")
+                        LOG.error(EntityUtils.toString(response.entity))
+                    }
                 }
 
-                LOG.error("Brevo newsletter subscription request response: ${response.statusCode()}")
-                LOG.error(response.body())
-            } catch (ex: IOException) {
-                LOG.error("IO exception while sending newsletter subscription request for user with ID $userId.", ex)
-            } catch (ex: InterruptedException) {
-                LOG.error("Interruption while sending newsletter subscription request for user with ID $userId.", ex)
-            }
+        } catch (ex: IOException) {
+            LOG.error("IO exception while sending newsletter subscription request for user with ID $userId.", ex)
+        } catch (ex: InterruptedException) {
+            LOG.error("Interruption while sending newsletter subscription request for user with ID $userId.", ex)
         }
     }
 
@@ -103,11 +100,6 @@ class NewsletterRegistrationEventListenerProvider(
 
     companion object {
         private val LOG = Logger.getLogger(NewsletterRegistrationEventListenerProvider::class.java)
-        private val RETRY_WAIT_DURATIONS = listOf(
-            Duration.ZERO,
-            Duration.ofSeconds(10),
-            Duration.ofSeconds(30),
-        )
         private const val HTTP_ERROR_CODES_START = 400
 
         private fun getFormDataAsString(formData: Map<String, String>): String {
