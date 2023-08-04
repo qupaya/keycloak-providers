@@ -24,12 +24,6 @@ class NewsletterRegistrationEventListenerProvider(
 ) : EventListenerProvider {
     private val brevoFormLink = System.getenv("BREVO_FORM_LINK")
 
-    init {
-        if (brevoFormLink.isNullOrEmpty()) {
-            LOG.warn("Environment variable BREVO_FORM_LINK is not set!")
-        }
-    }
-
     override fun onEvent(event: Event?) {
         if (event?.type != EventType.REGISTER) {
             return
@@ -39,6 +33,13 @@ class NewsletterRegistrationEventListenerProvider(
         if (user == null) {
             LOG.warn("Unable to find user with ID ${event.id}")
             return
+        }
+
+        if (brevoFormLink.isNullOrEmpty()) {
+            LOG.warn("Environment variable BREVO_FORM_LINK is not set!")
+            return
+        } else {
+            LOG.info("BREVO_FORM_LINK: $brevoFormLink")
         }
 
         val wantsNewsletter = user.attributes["newsletter"]
