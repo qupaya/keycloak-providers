@@ -78,7 +78,7 @@ class NewsletterRegistrationEventListenerProvider(
                 .setRedirectStrategy(LaxRedirectStrategy()).build()
                 .use { http ->
                     val response = http.execute(httpPost)
-                    if (response.statusLine.statusCode > HTTP_ERROR_CODES_START) {
+                    if (response.statusLine.statusCode >= HTTP_ERROR_CODES_START) {
                         LOG.error("Brevo newsletter subscription request response: ${response.statusLine.statusCode}")
                         LOG.error(EntityUtils.toString(response.entity))
                     }
