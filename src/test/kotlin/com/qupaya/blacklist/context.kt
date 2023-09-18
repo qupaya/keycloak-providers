@@ -1,7 +1,5 @@
-package com.qupaya
+package com.qupaya.blacklist
 
-import com.qupaya.blacklist.BlacklistResolver
-import com.qupaya.blacklist.RemotePasswordBlacklistPolicyProviderFactory
 import org.keycloak.models.KeycloakContext
 import org.keycloak.models.PasswordPolicy
 import org.keycloak.models.RealmModel
