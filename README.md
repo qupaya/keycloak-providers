@@ -74,6 +74,16 @@ This plugin allows you to create a newsletter subscription request. Maybe you wa
   subscribeToNewsletter=Subscribe to newsletter
   ```
 
+### Keycloak save last login as attribute [inspired by ThoreKr](https://github.com/ThoreKr/keycloak-last-login-event-listener)
+
+#### Configuration
+
+
+1. Enter the admin console and select the realm for which you want to configure the plugin.
+2. Select _Realm settings_ and _Events_.
+3. Add the event listener _qupaya-lastLogin-event-listener_.
+5. Save.
+
 ## Prerequisites
 * JDK 11
 
