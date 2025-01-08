@@ -1,11 +1,11 @@
 package com.qupaya.sha1
 
-import org.jboss.resteasy.annotations.cache.NoCache
 import org.keycloak.models.KeycloakSession
 import org.keycloak.models.credential.PasswordCredentialModel
 import org.keycloak.services.managers.AppAuthManager.BearerTokenAuthenticator
 import java.nio.charset.StandardCharsets
 import javax.ws.rs.*
+import javax.ws.rs.core.CacheControl
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
@@ -14,14 +14,17 @@ class Sha1ImportResource(private val session: KeycloakSession) {
 
     @POST
     @Path("import")
-    @NoCache
     @Consumes(MediaType.APPLICATION_JSON)
     fun importUser(userData: Sha1User): Response {
         checkRealmAdmin()
 
+        val cacheControl = CacheControl()
+        cacheControl.isNoCache = true
+
         val existingUser = session.users().getUserByEmail(session.context.realm, userData.email)
         if (existingUser != null) {
             return Response.ok("{\"id\": \"${existingUser.id}\"}")
+                .cacheControl(cacheControl)
                 .build()
         }
 
@@ -43,6 +46,7 @@ class Sha1ImportResource(private val session: KeycloakSession) {
 
         return Response.status(Response.Status.CREATED)
             .entity("{\"id\": \"${user.id}\"}")
+            .cacheControl(cacheControl)
             .build()
     }
 

@@ -104,4 +104,4 @@ Check the `test-auth.sh` file for details.
 * Create the provider class.
 * Register the provider factory by referencing it in `META-INF/services`
 
-Find examples in [the official keycloak documentation](https://www.keycloak.org/docs/latest/server_development/#_providers) and [the example code in the keycloak repo](https://github.com/keycloak/keycloak/tree/main/examples).
+Find examples in [the official keycloak documentation](https://www.keycloak.org/docs/latest/server_development/#_providers).
