@@ -1,21 +1,21 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.8.10"
+    kotlin("jvm") version "2.0.21"
 }
 
 group = "com.qupaya"
-version = "v0.0.12"
+version = "v0.0.13"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation("org.keycloak:keycloak-core:24.0.5")
-    implementation("org.keycloak:keycloak-services:24.0.5")
-    implementation("org.keycloak:keycloak-server-spi:24.0.5")
-    implementation("org.keycloak:keycloak-server-spi-private:24.0.5")
+    implementation("org.keycloak:keycloak-core:26.0.7")
+    implementation("org.keycloak:keycloak-services:26.0.7")
+    implementation("org.keycloak:keycloak-server-spi:26.0.7")
+    implementation("org.keycloak:keycloak-server-spi-private:26.0.7")
     implementation("com.google.guava:guava:31.1-jre")
     implementation("org.mindrot:jbcrypt:0.4")
     implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
