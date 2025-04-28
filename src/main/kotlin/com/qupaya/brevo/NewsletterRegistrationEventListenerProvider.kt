@@ -31,7 +31,7 @@ class NewsletterRegistrationEventListenerProvider(
 
         val user = session.users().getUserById(session.context.realm, event.userId)
         if (user == null) {
-            LOG.warn("Unable to find user with ID ${event.id}")
+            LOG.warn("Unable to find user with ID ${event.userId}. No Brevo newsletter subscription will be done")
             return
         }
 
@@ -44,6 +44,7 @@ class NewsletterRegistrationEventListenerProvider(
 
         val wantsNewsletter = user.attributes["newsletter"]
         if (wantsNewsletter == null || !wantsNewsletter.contains("on")) {
+            LOG.info("Skipping Brevo newsletter subscription for ${user.id}")
             return
         }
 
@@ -58,7 +59,7 @@ class NewsletterRegistrationEventListenerProvider(
         try {
             threadPool.submit(createNewsletterSubscriptionRequestRunner(formData, event.userId))
         } catch (ex: RejectedExecutionException) {
-            LOG.warn("The newsletter subscription requests is not queued. Maybe the system is shutting down.")
+            LOG.warn("The Brevo newsletter subscription requests is not queued. Maybe the system is shutting down.")
         }
     }
 
@@ -79,15 +80,17 @@ class NewsletterRegistrationEventListenerProvider(
                 .use { http ->
                     val response = http.execute(httpPost)
                     if (response.statusLine.statusCode >= HTTP_ERROR_CODES_START) {
-                        LOG.error("Brevo newsletter subscription request response: ${response.statusLine.statusCode}")
+                        LOG.error("Brevo newsletter subscription request response for ${userId}: ${response.statusLine.statusCode}")
                         LOG.error(EntityUtils.toString(response.entity))
+                    } else {
+                        LOG.info("Brevo newsletter subscription done for ${userId}: ${response.statusLine.statusCode}")
                     }
                 }
 
         } catch (ex: IOException) {
-            LOG.error("IO exception while sending newsletter subscription request for user with ID $userId.", ex)
+            LOG.error("IO exception while sending Brevo newsletter subscription request for user with ID $userId.", ex)
         } catch (ex: InterruptedException) {
-            LOG.error("Interruption while sending newsletter subscription request for user with ID $userId.", ex)
+            LOG.error("Interruption while sending Brevo newsletter subscription request for user with ID $userId.", ex)
         }
     }
 
