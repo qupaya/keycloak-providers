@@ -55,9 +55,11 @@ class NewsletterRegistrationEventListenerProviderFactory : EventListenerProvider
                     .use { http ->
                         val response = http.execute(httpPost)
                         if (response.statusLine.statusCode >= 400) {
-                            LOG.error("Brevo newsletter subscription test request response: ${response.statusLine.statusCode}")
+                            LOG.error("Brevo newsletter subscription test request to ${brevoFormLink} failed: ${response.statusLine.statusCode}")
                             LOG.error(EntityUtils.toString(response.entity))
                             brevoRequestResult = "Brevo newsletter subscription test request response: ${response.statusLine.statusCode}"
+                        } else {
+                            LOG.info("Brevo newsletter subscription test test request to ${brevoFormLink} succeeded: ${response.statusLine.statusCode}")
                         }
                     }
 

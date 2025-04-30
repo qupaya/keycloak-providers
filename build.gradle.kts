@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.qupaya"
-version = "v0.0.14"
+version = "v0.0.15"
 
 repositories {
     mavenCentral()
@@ -19,7 +19,9 @@ dependencies {
     implementation("com.google.guava:guava:31.1-jre")
     implementation("org.mindrot:jbcrypt:0.4")
     implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
-
+    implementation("org.json:json:20250107")
+    implementation("org.apache.httpcomponents:httpmime:4.5.14")
+    implementation("org.apache.httpcomponents:httpclient:4.5.13")
 
     testImplementation(kotlin("test"))
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
@@ -48,6 +50,9 @@ tasks.withType<Jar> {
             it.name.endsWith("jar")
                     && (it.name.contains("jbcrypt")
                     || it.name.contains("guava")
+                    || it.name.contains("json")
+                    || it.name.contains("mime")
+                    || it.name.contains("http")
                     || it.name.contains("kotlin"))
 
         }.map { zipTree(it) }

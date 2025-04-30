@@ -1,22 +1,24 @@
 package com.qupaya.brevo
 
 import com.qupaya.util.urlEncode
+import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.client.methods.HttpPost
-import org.apache.http.entity.StringEntity
+import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.impl.client.LaxRedirectStrategy
 import org.apache.http.util.EntityUtils
 import org.jboss.logging.Logger
+import org.json.JSONObject
 import org.keycloak.events.Event
 import org.keycloak.events.EventListenerProvider
 import org.keycloak.events.EventType
 import org.keycloak.events.admin.AdminEvent
 import org.keycloak.models.KeycloakSession
 import java.io.IOException
+import java.nio.charset.Charset
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.RejectedExecutionException
-
 
 class NewsletterRegistrationEventListenerProvider(
     private val session: KeycloakSession,
@@ -30,6 +32,8 @@ class NewsletterRegistrationEventListenerProvider(
         }
 
         val user = session.users().getUserById(session.context.realm, event.userId)
+
+        LOG.info("User attributes: ${user.attributes}") // Log the full user attributes
         if (user == null) {
             LOG.warn("Unable to find user with ID ${event.userId}. No Brevo newsletter subscription will be done")
             return
@@ -48,49 +52,91 @@ class NewsletterRegistrationEventListenerProvider(
             return
         }
 
-        val formData = mapOf(
-            "EMAIL" to user.email,
-            "OPT_IN" to "1",
-            "email_address_check" to "",
-            "locale" to "de",
-            "html_type" to "simple",
-        )
-
         try {
-            threadPool.submit(createNewsletterSubscriptionRequestRunner(formData, event.userId))
+            threadPool.submit(createNewsletterSubscriptionRequestRunner(brevoFormLink, user.email))
         } catch (ex: RejectedExecutionException) {
-            LOG.warn("The Brevo newsletter subscription requests is not queued. Maybe the system is shutting down.")
+            LOG.warn("The Brevo newsletter subscription request is not queued. Maybe the system is shutting down.")
         }
     }
 
-    private fun createNewsletterSubscriptionRequestRunner(formData: Map<String, String>, userId: String) = Runnable {
-        /*
-         * Yes, we could use the Brevo API to create a (DOI) contact, but
-         * using the form data POST request ensures that handling like
-         * success pages can be controlled inside Brevo.
-         */
-        val httpPost = HttpPost(brevoFormLink)
-        httpPost.entity = StringEntity(getFormDataAsString(formData))
-        httpPost.setHeader("content-type", "application/x-www-form-urlencoded")
-
+    private fun createNewsletterSubscriptionRequestRunner(url: String, email: String) = Runnable {
         try {
-            HttpClientBuilder.create()
+            val boundary = "----WebKitFormBoundaryCfnIdlFPwnlMHbbv" // Boundary from the web request
+
+            // Create the multipart form data
+            val entity = MultipartEntityBuilder.create()
+                .setBoundary(boundary)
+                .addTextBody("EMAIL", email)
+                .addTextBody("OPT_IN", "1")
+                .addTextBody("email_address_check", "")
+                .addTextBody("locale", "de")
+                .build()
+
+            // Build the HttpPost request
+            val httpPost = HttpPost(url)
+            httpPost.entity = entity
+            httpPost.setHeader("Content-Type", "multipart/form-data; boundary=$boundary")
+            httpPost.setHeader("Accept", "*/*")
+            // THIS IS IMPORTANT! Without this, the request "succeeds" but the server does not process it.
+            httpPost.setHeader(
+                "user-agent",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
+            )
+
+
+            LOG.info("Brevo newsletter subscription request for $email to $url")
+
+            val httpClient = HttpClientBuilder.create()
                 .setRetryHandler(DefaultHttpRequestRetryHandler())
-                .setRedirectStrategy(LaxRedirectStrategy()).build()
-                .use { http ->
-                    val response = http.execute(httpPost)
-                    if (response.statusLine.statusCode >= HTTP_ERROR_CODES_START) {
-                        LOG.error("Brevo newsletter subscription request response for ${userId}: ${response.statusLine.statusCode}")
-                        LOG.error(EntityUtils.toString(response.entity))
-                    } else {
-                        LOG.info("Brevo newsletter subscription done for ${userId}: ${response.statusLine.statusCode}")
+                .setRedirectStrategy(LaxRedirectStrategy())
+                .build()
+
+            httpClient.use { client ->
+                val response: CloseableHttpResponse = client.execute(httpPost)
+                val statusCode = response.statusLine.statusCode
+                val responseString = EntityUtils.toString(response.entity, Charset.forName("UTF-8")).trim()
+
+                val contentType = response.getFirstHeader("Content-Type")?.value
+                LOG.info("Content-Type: $contentType")
+
+                // Log the response headers if you need it/want it
+//                val responseHeaders = response.allHeaders
+//                responseHeaders.forEach { header ->
+//                    LOG.info("Response Header: ${header.name} = ${header.value}")
+//                }
+
+                // Log the response body for debugging
+                LOG.info("Response Entity: $responseString")
+
+                // Handle error status codes
+                if (statusCode >= 400) {
+                    LOG.error("Brevo newsletter subscription failed for $email: $statusCode")
+                    LOG.error("Response: $responseString")
+
+                } else {
+                    // Parse the response as JSON
+                    try {
+                        val json = JSONObject(responseString)
+                        val success = json.optBoolean("success", false)
+
+                        if (success) {
+                            LOG.info("Brevo newsletter subscription successful for $email")
+                        } else {
+                            LOG.error("Brevo newsletter subscription response for $email was not successful")
+                        }
+                    } catch (e: Exception) {
+                        LOG.error("Error parsing response JSON: $responseString", e)
                     }
                 }
 
+
+            }
         } catch (ex: IOException) {
-            LOG.error("IO exception while sending Brevo newsletter subscription request for user with ID $userId.", ex)
+            LOG.error("IOException while sending Brevo newsletter subscription request for user with ID $email.", ex)
         } catch (ex: InterruptedException) {
-            LOG.error("Interruption while sending Brevo newsletter subscription request for user with ID $userId.", ex)
+            LOG.error("Interruption while sending Brevo newsletter subscription request for user with ID $email.", ex)
+        } catch (ex: Exception) {
+            LOG.error("Exception while sending Brevo newsletter subscription request for user with ID $email.", ex)
         }
     }
 
@@ -111,5 +157,7 @@ class NewsletterRegistrationEventListenerProvider(
                 key.urlEncode() + "=" + value.urlEncode()
             }
         }
+
+
     }
 }
