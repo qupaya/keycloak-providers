@@ -21,27 +21,6 @@ This plugin takes one or more links to text files with blacklisted passwords. Th
 * Checking passwords against the blacklist works automatically.
 * The REST-API endpoint is available at `[KEYCLOAK_ADDRESS]/realms/[MY_REALM]/remoteBlacklistRealm/check/[PASSWORD]` as GET request.
 
-### SHA-1 hash provider and importer
-
-This plugin allows importing existing users, that have SHA-1 based passwords. The passwords will be automatically updated to the configured default algorithm on a users first login.
-
-#### Configuration
-
-(In 20.0.3)
-
-1. Enter the admin console and select the realm for which you want to configure the plugin.
-2. Select _Realm roles_.
-3. Create role _sha1-import_.
-4. Save.
-5. Add the role to the user / client that you use to import the users.
-
-#### How to use
-
-Import the users one by one using the provided REST-API endpoint `[KEYCLOAK_ADDRESS]/realms/[TARGET_REALM]/sha1Import/import`:
-
-```shell
-curl -i --request POST [KEYCLOAK_ADDRESS]/realms/[TARGET_REALM]/sha1Import/import --header "Authorization: Bearer $ACCESS_TOKEN" --header "Content-Type: application/json" --data '{"firstName":"[FIRST_NAME]","lastName":"[LAST_NAME]","email":"[EMAIL]","username":"[USER_NAME]","emailVerified":true,"enabled":true,"hash":"[THE_HASH]","salt":"[THE_SALT]"}';
-```
 
 ### Brevo newsletter registration
 
@@ -90,7 +69,7 @@ This plugin allows you to create a newsletter subscription request. Maybe you wa
 ## Quickstart
 * Clone the repository.
 * Build the jar file: `./gradlew jar`.
-* Copy the generated jar file into the `providers` directory (might not exist yet) in the keycloak installation. 
+* Copy the generated jar file into the `providers` directory (might not exist yet) in the keycloak installation.
 
 ## REST API endpoints:
 * Create a user that has the admin role for the realm.
