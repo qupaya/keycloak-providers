@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.qupaya"
-version = "v0.0.15"
+version = "v0.0.16"
 
 repositories {
     mavenCentral()
@@ -17,7 +17,6 @@ dependencies {
     implementation("org.keycloak:keycloak-server-spi:26.0.7")
     implementation("org.keycloak:keycloak-server-spi-private:26.0.7")
     implementation("com.google.guava:guava:31.1-jre")
-    implementation("org.mindrot:jbcrypt:0.4")
     implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
     implementation("org.json:json:20250107")
     implementation("org.apache.httpcomponents:httpmime:4.5.14")
