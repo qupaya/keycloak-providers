@@ -11,7 +11,7 @@
 		},
 		"ghcr.io/devcontainers/features/java:1": {
 			"installGradle": true,
-			"version": "11",
+			"version": "17",
 			"jdkDistro": "open",
 			"gradleVersion": "latest",
 			"mavenVersion": "latest",
