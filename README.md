@@ -64,7 +64,7 @@ This plugin allows you to create a newsletter subscription request. Maybe you wa
 5. Save.
 
 ## Prerequisites
-* JDK 11
+* JDK 17
 
 ## Quickstart
 * Clone the repository.
@@ -82,5 +82,7 @@ Check the `test-auth.sh` file for details.
 * Create the provider factory class.
 * Create the provider class.
 * Register the provider factory by referencing it in `META-INF/services`
+* When removing a provider, remove its `META-INF/services` line in the same change. Keycloak
+  aborts startup if a registered class is missing. `SpiRegistrationTest` fails on such a leftover.
 
 Find examples in [the official keycloak documentation](https://www.keycloak.org/docs/latest/server_development/#_providers).
