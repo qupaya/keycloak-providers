@@ -1,7 +1,5 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    kotlin("jvm") version "2.0.21"
+    kotlin("jvm") version "2.4.10"
 }
 
 group = "com.qupaya"
@@ -9,6 +7,10 @@ version = "v0.0.16"
 
 repositories {
     mavenCentral()
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 dependencies {
@@ -30,10 +32,6 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
 }
 
 tasks.withType<Jar> {
