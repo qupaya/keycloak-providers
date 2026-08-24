@@ -47,8 +47,7 @@ tasks.withType<Jar> {
     from({
         configurations.runtimeClasspath.get().filter {
             it.name.endsWith("jar")
-                    && (it.name.contains("jbcrypt")
-                    || it.name.contains("guava")
+                    && (it.name.contains("guava")
                     || it.name.contains("json")
                     || it.name.contains("mime")
                     || it.name.contains("http")
