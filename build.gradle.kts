@@ -13,13 +13,22 @@ kotlin {
     jvmToolchain(17)
 }
 
+val keycloakVersion = "26.7.2"
+
+// Keycloak supplies these at runtime. Keeping them off runtimeClasspath is what lets the jar task
+// bundle everything it resolves instead of guessing by artifact name.
+val providedByKeycloak: Configuration by configurations.creating
+configurations.compileOnly { extendsFrom(providedByKeycloak) }
+configurations.testImplementation { extendsFrom(providedByKeycloak) }
+
 dependencies {
-    implementation("org.keycloak:keycloak-core:26.7.2")
-    implementation("org.keycloak:keycloak-services:26.7.2")
-    implementation("org.keycloak:keycloak-server-spi:26.7.2")
-    implementation("org.keycloak:keycloak-server-spi-private:26.7.2")
+    providedByKeycloak("org.keycloak:keycloak-core:$keycloakVersion")
+    providedByKeycloak("org.keycloak:keycloak-services:$keycloakVersion")
+    providedByKeycloak("org.keycloak:keycloak-server-spi:$keycloakVersion")
+    providedByKeycloak("org.keycloak:keycloak-server-spi-private:$keycloakVersion")
+    providedByKeycloak("jakarta.ws.rs:jakarta.ws.rs-api:3.1.0")
+
     implementation("com.google.guava:guava:33.7.1-jre")
-    implementation("jakarta.ws.rs:jakarta.ws.rs-api:3.1.0")
     implementation("org.json:json:20260814")
     implementation("org.apache.httpcomponents:httpmime:4.5.14")
     implementation("org.apache.httpcomponents:httpclient:4.5.14")
@@ -35,22 +44,10 @@ tasks.test {
 }
 
 tasks.withType<Jar> {
-    // To avoid the duplicate handling strategy error
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-    // To add all dependencies
     from(sourceSets.main.get().output)
 
     dependsOn(configurations.runtimeClasspath)
-    from({
-        configurations.runtimeClasspath.get().filter {
-            it.name.endsWith("jar")
-                    && (it.name.contains("guava")
-                    || it.name.contains("json")
-                    || it.name.contains("mime")
-                    || it.name.contains("http")
-                    || it.name.contains("kotlin"))
-
-        }.map { zipTree(it) }
-    })
+    from({ configurations.runtimeClasspath.get().map { zipTree(it) } })
 }
