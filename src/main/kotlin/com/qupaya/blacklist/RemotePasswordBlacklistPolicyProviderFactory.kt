@@ -6,7 +6,6 @@ import org.jboss.logging.Logger
 import org.keycloak.Config
 import org.keycloak.models.KeycloakSession
 import org.keycloak.models.KeycloakSessionFactory
-import org.keycloak.policy.BlacklistPasswordPolicyProviderFactory
 import org.keycloak.policy.PasswordPolicyProvider
 import org.keycloak.policy.PasswordPolicyProviderFactory
 import java.net.URI
@@ -45,12 +44,6 @@ class RemotePasswordBlacklistPolicyProviderFactory : PasswordPolicyProviderFacto
     override fun close() {
     }
 
-    /**
-     * Resolves and potentially registers a [BlacklistPasswordPolicyProviderFactory.PasswordBlacklist] for the given `blacklistName`.
-     *
-     * @param blacklistAddresses HTTP address of the password blacklist
-     * @return
-     */
     override fun resolvePasswordBlacklist(blacklistAddresses: String): BlacklistResolver.PasswordBlacklist? {
         Objects.requireNonNull(blacklistAddresses, "blacklistName")
         val cleanedBlacklistAddresses = blacklistAddresses.trim()
