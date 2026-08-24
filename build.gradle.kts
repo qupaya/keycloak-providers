@@ -25,8 +25,8 @@ dependencies {
     implementation("org.apache.httpcomponents:httpclient:4.5.14")
 
     testImplementation(kotlin("test"))
-    testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:6.3.0")
+    testImplementation("com.squareup.okhttp3:mockwebserver3:5.5.0")
     testImplementation("org.glassfish.jersey.core:jersey-common:3.1.12")
 }
 

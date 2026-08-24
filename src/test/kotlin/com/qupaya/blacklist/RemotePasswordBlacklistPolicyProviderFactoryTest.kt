@@ -1,7 +1,7 @@
 package com.qupaya.blacklist
 
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
+import mockwebserver3.MockResponse
+import mockwebserver3.MockWebServer
 import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.Assertions.*
@@ -11,12 +11,14 @@ internal class RemotePasswordBlacklistPolicyProviderFactoryTest {
     @Test
     fun `successfully resolve a password blacklist`() {
         val webServer = MockWebServer()
-        webServer.enqueue(MockResponse()
-            .setBody("""
+        webServer.start()
+        webServer.enqueue(MockResponse.Builder()
+            .code(200)
+            .body("""
                 password
                 123456
             """.trimIndent())
-            .setResponseCode(200)
+            .build()
         )
 
         val blacklist = RemotePasswordBlacklistPolicyProviderFactory()
@@ -30,19 +32,22 @@ internal class RemotePasswordBlacklistPolicyProviderFactoryTest {
     @Test
     fun `successfully resolve a two password blacklists`() {
         val webServer = MockWebServer()
-        webServer.enqueue(MockResponse()
-            .setBody("""
+        webServer.start()
+        webServer.enqueue(MockResponse.Builder()
+            .code(200)
+            .body("""
                 password
                 123456
             """.trimIndent())
-            .setResponseCode(200)
+            .build()
         )
-        webServer.enqueue(MockResponse()
-            .setBody("""
+        webServer.enqueue(MockResponse.Builder()
+            .code(200)
+            .body("""
                 hidden
                 unguessable
             """.trimIndent())
-            .setResponseCode(200)
+            .build()
         )
 
         val blacklist = RemotePasswordBlacklistPolicyProviderFactory()
@@ -57,8 +62,10 @@ internal class RemotePasswordBlacklistPolicyProviderFactoryTest {
     @Test
     fun `return null when the blacklist is not available`() {
         val webServer = MockWebServer()
-        webServer.enqueue(MockResponse()
-            .setResponseCode(404)
+        webServer.start()
+        webServer.enqueue(MockResponse.Builder()
+            .code(404)
+            .build()
         )
 
         val blacklist = RemotePasswordBlacklistPolicyProviderFactory()
@@ -70,11 +77,13 @@ internal class RemotePasswordBlacklistPolicyProviderFactoryTest {
     @Test
     fun `the blacklist reading should work case insensitive`() {
         val webServer = MockWebServer()
-        webServer.enqueue(MockResponse()
-            .setBody("""
+        webServer.start()
+        webServer.enqueue(MockResponse.Builder()
+            .code(200)
+            .body("""
                 PaSsWoRd
             """.trimIndent())
-            .setResponseCode(200)
+            .build()
         )
 
         val blacklist = RemotePasswordBlacklistPolicyProviderFactory()
