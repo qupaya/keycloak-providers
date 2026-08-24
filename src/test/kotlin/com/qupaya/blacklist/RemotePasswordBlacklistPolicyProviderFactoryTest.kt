@@ -2,94 +2,58 @@ package com.qupaya.blacklist
 
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
-import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
+import kotlin.test.Test
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 internal class RemotePasswordBlacklistPolicyProviderFactoryTest {
 
     @Test
     fun `successfully resolve a password blacklist`() {
-        val webServer = MockWebServer()
-        webServer.start()
-        webServer.enqueue(MockResponse.Builder()
-            .code(200)
-            .body("""
-                password
-                123456
-            """.trimIndent())
-            .build()
-        )
+        val blacklist = resolve(listOf(200 to "password\n123456"))
 
-        val blacklist = RemotePasswordBlacklistPolicyProviderFactory()
-            .resolvePasswordBlacklist(webServer.url("/myBlacklist.txt").toString())
-
-        assertNotNull(blacklist) { "There should be a blacklist" }
-        assertTrue(blacklist?.contains("password") ?: false) { "The blacklist should contain the given words" }
-        assertFalse(blacklist?.contains("awesome-password") ?: true) { "The blacklist should not contain words that are not given" }
+        assertNotNull(blacklist, "There should be a blacklist")
+        assertTrue(blacklist.contains("password"), "The blacklist should contain the given words")
+        assertFalse(blacklist.contains("awesome-password"), "The blacklist should not contain words that are not given")
     }
 
     @Test
     fun `successfully resolve a two password blacklists`() {
-        val webServer = MockWebServer()
-        webServer.start()
-        webServer.enqueue(MockResponse.Builder()
-            .code(200)
-            .body("""
-                password
-                123456
-            """.trimIndent())
-            .build()
-        )
-        webServer.enqueue(MockResponse.Builder()
-            .code(200)
-            .body("""
-                hidden
-                unguessable
-            """.trimIndent())
-            .build()
-        )
+        val blacklist = resolve(listOf(200 to "password\n123456", 200 to "hidden\nunguessable"))
 
-        val blacklist = RemotePasswordBlacklistPolicyProviderFactory()
-            .resolvePasswordBlacklist("${webServer.url("/myBlacklist.txt")} ${webServer.url("/myOtherBlacklist.txt")}")
-
-        assertNotNull(blacklist) { "There should be a blacklist" }
-        assertTrue(blacklist?.contains("password") ?: false) { "The blacklist should contain the words from first blacklist" }
-        assertTrue(blacklist?.contains("unguessable") ?: false) { "The blacklist should contain the words from the second blacklist" }
-        assertFalse(blacklist?.contains("awesome-password") ?: true) { "The blacklist should not contain words that are not given" }
+        assertNotNull(blacklist, "There should be a blacklist")
+        assertTrue(blacklist.contains("password"), "The blacklist should contain the words from first blacklist")
+        assertTrue(blacklist.contains("unguessable"), "The blacklist should contain the words from the second blacklist")
+        assertFalse(blacklist.contains("awesome-password"), "The blacklist should not contain words that are not given")
     }
 
     @Test
     fun `return null when the blacklist is not available`() {
-        val webServer = MockWebServer()
-        webServer.start()
-        webServer.enqueue(MockResponse.Builder()
-            .code(404)
-            .build()
-        )
-
-        val blacklist = RemotePasswordBlacklistPolicyProviderFactory()
-            .resolvePasswordBlacklist(webServer.url("/myBlacklist.txt").toString())
-
-        assertNull(blacklist)
+        assertNull(resolve(listOf(404 to null)))
     }
 
     @Test
     fun `the blacklist reading should work case insensitive`() {
-        val webServer = MockWebServer()
-        webServer.start()
-        webServer.enqueue(MockResponse.Builder()
-            .code(200)
-            .body("""
-                PaSsWoRd
-            """.trimIndent())
-            .build()
-        )
+        val blacklist = resolve(listOf(200 to "PaSsWoRd"))
 
-        val blacklist = RemotePasswordBlacklistPolicyProviderFactory()
-            .resolvePasswordBlacklist(webServer.url("/myBlacklist.txt").toString())
-
-        assertNotNull(blacklist) { "There should be a blacklist" }
-        assertTrue(blacklist?.contains("pAsSwOrD") ?: false) { "The blacklist should contain the given case insensitive words" }
+        assertNotNull(blacklist, "There should be a blacklist")
+        assertTrue(blacklist.contains("pAsSwOrD"), "The blacklist should contain the given case insensitive words")
     }
+
+    private fun resolve(responses: List<Pair<Int, String?>>): BlacklistResolver.PasswordBlacklist? =
+        MockWebServer().use { server ->
+            server.start()
+            responses.forEach { (code, body) ->
+                server.enqueue(
+                    MockResponse.Builder()
+                        .code(code)
+                        .apply { if (body != null) body(body) }
+                        .build(),
+                )
+            }
+            val addresses = responses.indices.joinToString(" ") { server.url("/blacklist$it.txt").toString() }
+            RemotePasswordBlacklistPolicyProviderFactory().resolvePasswordBlacklist(addresses)
+        }
 }
