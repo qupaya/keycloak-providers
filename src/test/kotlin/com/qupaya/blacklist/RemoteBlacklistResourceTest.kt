@@ -7,7 +7,7 @@ import org.keycloak.models.KeycloakSession
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
-import javax.ws.rs.core.Response
+import jakarta.ws.rs.core.Response
 import kotlin.test.assertEquals
 
 class RemoteBlacklistResourceTest {

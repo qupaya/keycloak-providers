@@ -17,7 +17,7 @@ dependencies {
     implementation("org.keycloak:keycloak-server-spi:26.0.7")
     implementation("org.keycloak:keycloak-server-spi-private:26.0.7")
     implementation("com.google.guava:guava:31.1-jre")
-    implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
+    implementation("jakarta.ws.rs:jakarta.ws.rs-api:3.1.0")
     implementation("org.json:json:20250107")
     implementation("org.apache.httpcomponents:httpmime:4.5.14")
     implementation("org.apache.httpcomponents:httpclient:4.5.13")
@@ -25,7 +25,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
-    testImplementation("org.glassfish.jersey.core:jersey-common:2.22.2")
+    testImplementation("org.glassfish.jersey.core:jersey-common:3.1.12")
 }
 
 tasks.test {
