@@ -14,15 +14,15 @@ kotlin {
 }
 
 dependencies {
-    implementation("org.keycloak:keycloak-core:26.0.7")
-    implementation("org.keycloak:keycloak-services:26.0.7")
-    implementation("org.keycloak:keycloak-server-spi:26.0.7")
-    implementation("org.keycloak:keycloak-server-spi-private:26.0.7")
-    implementation("com.google.guava:guava:31.1-jre")
+    implementation("org.keycloak:keycloak-core:26.7.2")
+    implementation("org.keycloak:keycloak-services:26.7.2")
+    implementation("org.keycloak:keycloak-server-spi:26.7.2")
+    implementation("org.keycloak:keycloak-server-spi-private:26.7.2")
+    implementation("com.google.guava:guava:33.7.1-jre")
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:3.1.0")
-    implementation("org.json:json:20250107")
+    implementation("org.json:json:20260814")
     implementation("org.apache.httpcomponents:httpmime:4.5.14")
-    implementation("org.apache.httpcomponents:httpclient:4.5.13")
+    implementation("org.apache.httpcomponents:httpclient:4.5.14")
 
     testImplementation(kotlin("test"))
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
