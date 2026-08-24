@@ -23,18 +23,26 @@ internal class SpiRegistrationTest {
         registrations.forEach { (spiInterface, factoryClass) ->
             val spi = load(spiInterface) ?: fail("The SPI interface $spiInterface does not exist")
             val factory = load(factoryClass)
-                ?: fail("$spiInterface registers $factoryClass, which does not exist. Keycloak fails to load the whole SPI when a registered class is missing.")
+                ?: fail("$spiInterface registers $factoryClass, which does not exist. Keycloak aborts startup when a registered class is missing.")
 
             assertTrue(spi.isAssignableFrom(factory)) { "$factoryClass is registered under $spiInterface but does not implement it" }
         }
     }
 
     private fun load(className: String): Class<*>? =
-        runCatching { Class.forName(className, false, javaClass.classLoader) }.getOrNull()
+        try {
+            Class.forName(className, false, javaClass.classLoader)
+        } catch (ex: ClassNotFoundException) {
+            null
+        }
 
     private fun serviceFiles(): List<File> {
-        val services = javaClass.classLoader.getResource("META-INF/services")
-            ?: fail("META-INF/services is not on the test classpath")
-        return File(services.toURI()).listFiles().orEmpty().filter { it.isFile }.sortedBy { it.name }
+        val services = File(SERVICES_DIR)
+        assertTrue(services.isDirectory) { "Expected $SERVICES_DIR relative to ${File("").absolutePath}, which is where Gradle runs tests from" }
+        return services.listFiles().orEmpty().filter { it.isFile }.sortedBy { it.name }
+    }
+
+    private companion object {
+        const val SERVICES_DIR = "src/main/resources/META-INF/services"
     }
 }
