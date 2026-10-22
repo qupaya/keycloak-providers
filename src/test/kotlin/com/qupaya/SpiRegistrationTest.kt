@@ -36,16 +36,16 @@ internal class SpiRegistrationTest {
     }
 
     @Test
-    fun `every provider factory in the source tree is registered`() {
+    fun `every SPI factory in the source tree is registered`() {
         val registered = registrations.map { it.factoryClass }.toSet()
         val declared = factoryClassNames()
 
-        assertTrue(declared.isNotEmpty(), "No provider factories were found under $SOURCE_DIR, so this test would prove nothing")
+        assertTrue(declared.isNotEmpty(), "No SPI factories were found under $SOURCE_DIR, so this test would prove nothing")
 
         val unregistered = declared - registered
         assertTrue(
             unregistered.isEmpty(),
-            "These provider factories exist but no META-INF/services file registers them, so Keycloak starts cleanly and the feature is simply absent: $unregistered",
+            "These SPI factories exist but no META-INF/services file registers them, so Keycloak starts cleanly and the feature is simply absent: $unregistered",
         )
     }
 
@@ -66,7 +66,7 @@ internal class SpiRegistrationTest {
         val root = File(SOURCE_DIR)
         assertTrue(root.isDirectory, "Expected $SOURCE_DIR relative to ${File("").absolutePath}")
         return root.walkTopDown()
-            .filter { it.isFile && it.name.endsWith("ProviderFactory.kt") }
+            .filter { it.isFile && it.name.endsWith("Factory.kt") }
             .map { it.relativeTo(root).path.removeSuffix(".kt").replace(File.separatorChar, '.') }
             .toSet()
     }

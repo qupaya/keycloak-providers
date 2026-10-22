@@ -1,0 +1,11 @@
+[
+  { "input": "anna+shop@web.de", "hasSubAddress": true, "canonicalMailbox": "anna@web.de" },
+  { "input": "Anna.Muster@Web.de", "hasSubAddress": false, "canonicalMailbox": "anna.muster@web.de" },
+  { "input": "a.n.n.a@gmail.com", "hasSubAddress": false, "canonicalMailbox": "anna@gmail.com" },
+  { "input": "A.Nna+x@GoogleMail.com", "hasSubAddress": true, "canonicalMailbox": "anna@gmail.com" },
+  { "input": ".anna.@gmail.com", "hasSubAddress": false, "canonicalMailbox": "anna@gmail.com" },
+  { "input": "anna@example+x.com", "hasSubAddress": false, "canonicalMailbox": "anna@example+x.com" },
+  { "input": "\"we@ird\"@gmail.com", "hasSubAddress": false, "canonicalMailbox": "\"we@ird\"@gmail.com" },
+  { "input": "", "hasSubAddress": false, "canonicalMailbox": "" },
+  { "input": "no-at-sign", "hasSubAddress": false, "canonicalMailbox": "no-at-sign" }
+]

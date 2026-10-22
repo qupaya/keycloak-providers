@@ -63,6 +63,33 @@ This plugin allows you to create a newsletter subscription request. Maybe you wa
 3. Add the event listener _qupaya-lastLogin-event-listener_.
 5. Save.
 
+### Email alias policy validator
+
+A user profile validator for the `email` attribute (id `email-alias-policy`). It enforces two rules:
+
+1. **No sub-addresses.** Any `+` in the local part is rejected, for every domain. Message key `emailSubAddressNotAllowed`, params `[attributeName]` (i.e. `{0}` is `email`).
+2. **No Gmail dot variants of an existing account.** `a.nna@gmail.com` is rejected when `anna@gmail.com` already exists. `googlemail.com` is treated like `gmail.com`. Message key `emailGmailMailboxTaken`, params `[attributeName, existingEmail]` (i.e. `{1}` is the existing spelling). Status 409 where the caller honours it. The admin users API (`POST /admin/realms/{realm}/users`) answers with HTTP 400 and `{"field":"email","errorMessage":"emailGmailMailboxTaken","params":["email","<existing spelling>"]}`.
+
+If both rules are violated, only the sub-address error is reported. Blank values are ignored. Dots in non-Gmail domains are allowed.
+
+The messages are keys only. The theme has to provide the texts, e.g. in `messages_**.properties`. Other themes (admin console, legacy FTL) show the raw key.
+
+#### Unchanged-email exemption
+
+When a user is edited and the email is unchanged (case-insensitive), the validator passes. Existing accounts with a `+` address can keep it. A user changing to their own dot variant is allowed (the user is excluded from the lookup); changing to another user's dot variant is rejected.
+
+#### Gmail lookup and fail-open behaviour
+
+The lookup uses `UserModel.SEARCH` with a prefix on the local part, which also matches username and first/last name, so results are only candidates. The canonical mailbox of each candidate is compared in memory. The lookup is bounded to 10 pages of 50 users (500 candidates). If the cap is reached without a decision, the validator **fails open**: the email is accepted and a warning is logged (without the email address). A collision beyond the cap goes undetected; this is most likely for very short local parts.
+
+#### Configuration
+
+1. Enter the admin console and select the realm for which you want to configure the plugin.
+2. Select _Realm settings_ and _User profile_.
+3. Open the attribute _email_.
+4. Under _Validations_, select _Add validator_ and choose _email-alias-policy_.
+5. Save.
+
 ## Prerequisites
 * JDK 17
 
