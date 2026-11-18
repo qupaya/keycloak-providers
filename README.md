@@ -90,6 +90,22 @@ The lookup uses `UserModel.SEARCH` with a prefix on the local part, which also m
 4. Under _Validations_, select _Add validator_ and choose _email-alias-policy_.
 5. Save.
 
+### sha1 password hash (verify-only)
+
+A password hash provider (id `sha1`) for passwords imported from a legacy system, stored as uppercase hex SHA-1 of password + salt.
+
+* It only verifies. Writing a new sha1 hash throws, so new passwords always use the realm's hash algorithm.
+* After a successful login, Keycloak re-hashes the password with the realm's algorithm.
+* Keycloak needs it for as long as any credential still stores `sha1`, including password-history entries. Without it, those users can't log in, and changing or resetting a password crashes the password-history policy. Don't remove it.
+
+#### Configuration
+
+None. Keycloak picks the provider by the algorithm stored on each credential.
+
+#### Checking it against a running Keycloak
+
+`./gradlew jar && scripts/sha1-keycloak-check.sh` starts a throwaway Keycloak (the version from `build.gradle.kts`) with the built jar, imports users with sha1 passwords and checks login, re-hashing and password resets with password history. It needs docker, curl and jq, and removes the container when it ends.
+
 ## Prerequisites
 * JDK 17
 
